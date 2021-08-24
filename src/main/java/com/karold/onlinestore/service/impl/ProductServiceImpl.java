@@ -6,8 +6,8 @@ import com.karold.onlinestore.model.Product;
 import com.karold.onlinestore.repository.ProductRepository;
 import com.karold.onlinestore.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
