@@ -1,4 +1,4 @@
-package com.karold.onlinestore.security.config;
+package com.karold.onlinestore.security.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

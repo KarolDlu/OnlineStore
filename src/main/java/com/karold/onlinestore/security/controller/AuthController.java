@@ -1,33 +1,22 @@
 package com.karold.onlinestore.security.controller;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.karold.onlinestore.model.User;
-import com.karold.onlinestore.security.config.JWTUtils;
 import com.karold.onlinestore.security.model.CustomUserDetails;
+import com.karold.onlinestore.security.model.RefreshToken;
 import com.karold.onlinestore.security.payload.AuthResponse;
 import com.karold.onlinestore.security.payload.LoginRequest;
 import com.karold.onlinestore.security.payload.SignupRequest;
+import com.karold.onlinestore.security.service.RefreshTokenService;
 import com.karold.onlinestore.security.service.UserService;
-import lombok.Getter;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
-import static com.karold.onlinestore.security.config.JWTConstants.HEADER_STRING;
-import static com.karold.onlinestore.security.config.JWTConstants.TOKEN_PREFIX;
 
 @RestController
 @RequestMapping("/auth")
@@ -36,6 +25,8 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
 
     private UserService userService;
+
+
 
     @Autowired
     public AuthController(AuthenticationManager authenticationManager, UserService userService) {
@@ -51,12 +42,12 @@ public class AuthController {
                         loginRequest.getPassword()
                 )
         );
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String user = ((CustomUserDetails) authentication.getPrincipal()).getEmail();
-        String token = userService.login(user);
-        return ResponseEntity.ok(new AuthResponse(token));
+        CustomUserDetails customUserDetails = ((CustomUserDetails) authentication.getPrincipal());
+        String token = userService.login(customUserDetails.getEmail());
+        String refreshToken= userService.createRefreshToken(customUserDetails.getId());
+        return ResponseEntity.ok(new AuthResponse(token, refreshToken));
     }
 
     @PostMapping("/signup")
@@ -68,8 +59,8 @@ public class AuthController {
     }
 
     @PostMapping("/refreshToken")
-    public ResponseEntity<AuthResponse> refreshToken(@RequestParam String token) {
-        return ResponseEntity.ok(new AuthResponse(userService.refreshToken(token)));
+    public ResponseEntity<String> refreshToken(@RequestParam String token) {
+        return ResponseEntity.ok(userService.refreshToken(token));
     }
 
     @GetMapping("/checkSecurity")

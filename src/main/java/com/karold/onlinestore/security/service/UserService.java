@@ -1,12 +1,12 @@
 package com.karold.onlinestore.security.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.karold.onlinestore.exception.EmailAlreadyInUseException;
+import com.karold.onlinestore.exception.TokenRefreshException;
 import com.karold.onlinestore.model.Address;
 import com.karold.onlinestore.model.User;
 import com.karold.onlinestore.repository.AddressRepository;
 import com.karold.onlinestore.repository.UserRepository;
-import com.karold.onlinestore.security.config.JWTUtils;
+import com.karold.onlinestore.security.model.RefreshToken;
 import com.karold.onlinestore.security.payload.SignupRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +22,8 @@ public class UserService {
 
     private AddressRepository addressRepository;
 
+    private RefreshTokenService refreshTokenService;
+
     private JWTUtils jwtUtils;
 
     private ModelMapper modelMapper;
@@ -29,9 +31,10 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository, AddressRepository addressRepository, JWTUtils jwtUtils, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, AddressRepository addressRepository, RefreshTokenService refreshTokenService, JWTUtils jwtUtils, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
+        this.refreshTokenService = refreshTokenService;
         this.jwtUtils = jwtUtils;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
@@ -41,9 +44,20 @@ public class UserService {
         return jwtUtils.generateToken(user);
     }
 
-    public String refreshToken(String token){
-        String user = jwtUtils.parseToken(token);
-        return jwtUtils.generateRefreshToken(user);
+    public String refreshToken(String refreshToken){
+        return refreshTokenService.findByToken(refreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtUtils.generateToken(user.getEmail());
+                    return token;
+                })
+                .orElseThrow(()-> new TokenRefreshException("Refresh token not found in database"));
+    }
+
+    public String createRefreshToken(Long userId){
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userId);
+        return refreshToken.getToken();
     }
 
     public boolean register(SignupRequest signupRequest){
