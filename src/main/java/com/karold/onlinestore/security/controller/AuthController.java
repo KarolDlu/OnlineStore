@@ -62,9 +62,4 @@ public class AuthController {
     public ResponseEntity<String> refreshToken(@RequestParam String token) {
         return ResponseEntity.ok(userService.refreshToken(token));
     }
-
-    @GetMapping("/checkSecurity")
-    public ResponseEntity<String> securedEndPoint() {
-        return ResponseEntity.ok("Secured endpoint!");
-    }
 }
