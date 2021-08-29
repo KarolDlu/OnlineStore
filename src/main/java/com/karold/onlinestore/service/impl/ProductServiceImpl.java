@@ -60,10 +60,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public boolean deleteProduct(Long productId) {
+    public void deleteProduct(Long productId) {
         Product product = getProductById(productId);
         productRepository.delete(product);
-        return true;
     }
 
     private Product findProductByName(String name) {

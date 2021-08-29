@@ -41,9 +41,9 @@ public class ProductServiceTest {
     private Product validProduct;
 
     @Before
-    public void init(){
+    public void init() {
         validator = new LocalValidatorFactoryBean();
-        validProduct = new Product(1l, "Samsung Galaxy s10", BigDecimal.valueOf(2744.00), 27);
+        validProduct = new Product(1L, "Samsung Galaxy s10", BigDecimal.valueOf(2744.00), 27);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class ProductServiceTest {
     @Test
     public void addProduct_ProductWithAlreadyExistingNameGiven_ShouldThrowProductAlreadyExist() {
         when(productRepository.findByName("Samsung Galaxy s10")).thenReturn(Optional.of(validProduct));
-        Product givenProduct = new Product(2l, "Samsung Galaxy s10", BigDecimal.valueOf(1457.00), 27);
+        Product givenProduct = new Product(2L, "Samsung Galaxy s10", BigDecimal.valueOf(1457.00), 27);
         Assert.assertThrows(ProductAlreadyExistsException.class, () -> {
             productService.addProduct(givenProduct);
         });
@@ -65,7 +65,7 @@ public class ProductServiceTest {
     @Test
     public void addProduct_ProductWithNegativeQuantityGiven_ShouldThrowConstraintViolationException() {
         validator.afterPropertiesSet();
-        Product product = new Product(1l, "Samsung Galaxy s10", BigDecimal.valueOf(2744.00), -27);
+        Product product = new Product(1L, "Samsung Galaxy s10", BigDecimal.valueOf(2744.00), -27);
         Set<ConstraintViolation<Product>> violations = validator.validate(product, Default.class);
         when(productRepository.save(any(Product.class))).thenThrow(new ConstraintViolationException(violations));
         Assert.assertThrows(ConstraintViolationException.class, () -> productService.addProduct(product));
@@ -76,39 +76,42 @@ public class ProductServiceTest {
     @Test
     public void getAllProduct_ShouldReturnListOfProduct() {
         List<Product> products = new ArrayList<>();
-        products.add(new Product(1l, "Samsung Galaxy s10", BigDecimal.valueOf(1744.00), 27));
-        products.add(new Product(2l, "Asus Zenfone 8", BigDecimal.valueOf(2684.00), 31));
-        products.add(new Product(3l, "Lenovo Legion Y520-15 i5-7300HQ/8GB/1000 GTX1050", BigDecimal.valueOf(3449.00), 17));
+        products.add(new Product(1L, "Samsung Galaxy s10", BigDecimal.valueOf(1744.00), 27));
+        products.add(new Product(2L, "Asus Zenfone 8", BigDecimal.valueOf(2684.00), 31));
+        products.add(new Product(3L, "Lenovo Legion Y520-15 i5-7300HQ/8GB/1000 GTX1050", BigDecimal.valueOf(3449.00), 17));
         when(productRepository.findAll()).thenReturn(products);
         Assert.assertEquals(products, productService.getAllProducts());
     }
 
     @Test
     public void getProduct_NotExistingProductIdGiven_ShouldThrowProductNotFoundException() {
-        when(productRepository.findById(1l)).thenReturn(Optional.empty());
+        when(productRepository.findById(1L)).thenReturn(Optional.empty());
         Assert.assertThrows(ProductNotFoundException.class, () -> {
-            productService.getProductById(1l);
+            productService.getProductById(1L);
         });
     }
 
     @Test
     public void getProduct_ExistingProductIdGiven_ShouldReturnProductWithGivenId() {
         when(productRepository.findById(any(Long.class))).thenReturn(Optional.of(validProduct));
-        Product result = productService.getProductById(1l);
+        Product result = productService.getProductById(1L);
         Assert.assertEquals(validProduct, result);
     }
 
     @Test
     public void updateProductQuantity_ShouldReturnProductWithUpdatedQuantity() {
-        when(productRepository.findById(1l)).thenReturn(Optional.of(validProduct));
-        when(productRepository.save(any(Product.class))).thenReturn(validProduct);
-        Product updatedProduct = productService.updateProductQuantity(1l, 29);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(validProduct));
+        when(productRepository.save(any(Product.class))).thenAnswer(i -> {
+            Product updatedProduct = i.getArgument(0);
+            return updatedProduct;
+        });
+        Product updatedProduct = productService.updateProductQuantity(1L, 29);
         Assert.assertEquals(29, updatedProduct.getQuantity());
     }
 
     @Test
     public void updateProductQuantity_NegativeQuantityGiven_ShouldThrowException() {
-        when(productRepository.findById(1l)).thenReturn(Optional.of(validProduct));
-        Assert.assertThrows(NegativeProductQuantityException.class, () -> productService.updateProductQuantity(1l, -12));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(validProduct));
+        Assert.assertThrows(NegativeProductQuantityException.class, () -> productService.updateProductQuantity(1L, -12));
     }
 }

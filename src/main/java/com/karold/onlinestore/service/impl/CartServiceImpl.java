@@ -1,5 +1,6 @@
 package com.karold.onlinestore.service.impl;
 
+import com.karold.onlinestore.exception.IllegalProductAmountException;
 import com.karold.onlinestore.exception.NotEnoughProductQuantity;
 import com.karold.onlinestore.exception.ProductNotFoundException;
 import com.karold.onlinestore.model.Cart;
@@ -10,7 +11,6 @@ import com.karold.onlinestore.repository.CartRepository;
 import com.karold.onlinestore.repository.ProductRepository;
 import com.karold.onlinestore.repository.UserRepository;
 import com.karold.onlinestore.service.CartService;
-import com.karold.onlinestore.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +37,9 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartItem addItemToCart(String email, Long productId, int quantity) {
+        if (quantity <= 0){
+            throw new IllegalProductAmountException(quantity);
+        }
         Product product = productRepository.findById(productId).orElseThrow(()->{throw new ProductNotFoundException(productId);});
         Cart cart = cartRepository.findByUser_Email(email)
                 .orElseGet(() -> cartRepository.save(new Cart(userRepository.getByEmail(email))));

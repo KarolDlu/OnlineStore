@@ -57,5 +57,4 @@ public class Product {
     public boolean isAmountAvailable(int quantity){
         return this.quantity >= quantity;
     }
-
 }

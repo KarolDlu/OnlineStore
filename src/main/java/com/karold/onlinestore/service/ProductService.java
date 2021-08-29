@@ -17,6 +17,6 @@ public interface ProductService {
 
     Product updateProductPrice(Long productId, BigDecimal price);
 
-    boolean deleteProduct(Long productId);
+    void deleteProduct(Long productId);
 
 }

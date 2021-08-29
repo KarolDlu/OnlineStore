@@ -2,6 +2,7 @@ package com.karold.onlinestore.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.karold.onlinestore.security.payload.SignupRequest;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -46,6 +47,16 @@ public class User {
     @Column(nullable = false)
     @ManyToMany
     private List<Address> addresses = new ArrayList<>();
+
+    public User(Long id, @NotBlank String name, @NotBlank String surname, @Email String email, @NotBlank String password, UserType userType, Address address) {
+        this.id = id;
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.password = password;
+        this.userType = userType;
+        this.addresses.add(address);
+    }
 
     public void createCustomer(Address address, PasswordEncoder passwordEncoder){
         this.addresses.add(address);
