@@ -63,4 +63,8 @@ public class User {
         this.userType = UserType.CUSTOMER;
         this.password = passwordEncoder.encode(this.password);
     }
+
+    public String getFullName(){
+        return this.name+" "+this.surname;
+    }
 }

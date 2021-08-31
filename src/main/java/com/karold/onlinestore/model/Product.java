@@ -2,6 +2,7 @@ package com.karold.onlinestore.model;
 
 import com.karold.onlinestore.exception.IllegalPriceException;
 import com.karold.onlinestore.exception.NegativeProductQuantityException;
+import com.karold.onlinestore.exception.NotEnoughProductQuantity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -56,5 +57,12 @@ public class Product {
 
     public boolean isAmountAvailable(int quantity){
         return this.quantity >= quantity;
+    }
+
+    public void reserveProductAmount(int quantity){
+        if (!isAmountAvailable(quantity)){
+            throw new NotEnoughProductQuantity(this.quantity, quantity);
+        }
+        this.quantity-=quantity;
     }
 }
