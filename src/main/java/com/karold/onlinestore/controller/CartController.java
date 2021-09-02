@@ -40,7 +40,7 @@ public class CartController {
         return ResponseEntity.ok("Cart item quantity has been updated");
     }
 
-    @PostMapping("/remove/cartItem/{cartItemId}")
+    @DeleteMapping("/remove/cartItem/{cartItemId}")
     public ResponseEntity<String> removeProductFromCart(@PathVariable Long cartItemId, Principal principal) {
         cartService.removeItemFromCart(principal.getName(), cartItemId);
         return ResponseEntity.ok("Product has been removed");

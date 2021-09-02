@@ -1,13 +1,12 @@
 package com.karold.onlinestore.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -29,5 +28,13 @@ public class Cart {
 
     public Cart(User user) {
         this.user = user;
+    }
+
+    public BigDecimal calculatePrice(){
+        BigDecimal price = BigDecimal.valueOf(0);
+        this.cartItems.forEach(item -> {
+            price.add(item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+        });
+        return price;
     }
 }
