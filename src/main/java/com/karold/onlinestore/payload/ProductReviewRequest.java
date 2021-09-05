@@ -16,4 +16,10 @@ public class ProductReviewRequest {
 
     @NotBlank
     private String content;
+
+    public ProductReviewRequest(Long productId, @NotBlank String title, @NotBlank String content) {
+        this.productId = productId;
+        this.title = title;
+        this.content = content;
+    }
 }
